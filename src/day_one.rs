@@ -6,17 +6,17 @@ pub fn solve_one() -> Result<u32, Error> {
 
     let input = read(File::open("input/1.txt")?)?;
 
-    let mut sum: u32 = 0;
+    let mut sum = 0;
 
     for number in input {
-        let feul = calc_feul(number as u32);
+        let feul = calc_feul(number);
         sum += feul;
     }
 
     Ok(sum)
 }
 
-fn read<R: Read>(io: R) -> Result<Vec<i64>, Error> {
+fn read<R: Read>(io: R) -> Result<Vec<u32>, Error> {
     let br = BufReader::new(io);
     br.lines()
         .map(|line| line.and_then(|v| v.parse().map_err(|e| Error::new(ErrorKind::InvalidData, e))))
