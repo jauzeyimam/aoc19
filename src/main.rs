@@ -1,30 +1,32 @@
 use math::round;
+use std::fs::File;
+use std::io::{BufRead, BufReader, Error, ErrorKind, Read};
 
-fn main() {
-    println!("1: {}", solve_one())
+fn main() -> Result<(), Error> {
+    let result_1 = solve_one()?;
+    println!("1: {}", result_1);
+    Ok(())
 }
 
-fn solve_one() -> u32 {
-    static NUMBERS: &'static [u32] = &[
-        66690, 86239, 75191, 140364, 95979, 106923, 95229, 123571, 84764, 89444, 98107, 89062,
-        109369, 146067, 124760, 76900, 139198, 111441, 74046, 84920, 54397, 143807, 121654, 93863,
-        73909, 104121, 58485, 119084, 126227, 142078, 79820, 132617, 108430, 98032, 107434, 127307,
-        105619, 57741, 53468, 63301, 137970, 136780, 80897, 133205, 79159, 89124, 94477, 56714,
-        143704, 122097, 117335, 108246, 75507, 101459, 101162, 146197, 121884, 66217, 57074,
-        142903, 140951, 64883, 124556, 67382, 142407, 121778, 57933, 94599, 87426, 143758, 64043,
-        65678, 90137, 61090, 77315, 102383, 146607, 139290, 85394, 149787, 125611, 106405, 91561,
-        135739, 54845, 68782, 111175, 61011, 125658, 70751, 85607, 75458, 75419, 124311, 66022,
-        122784, 129018, 54901, 73788, 108240,
-    ];
+fn solve_one() -> Result<u32, Error> {
+
+    let input = read(File::open("input/1.txt")?)?;
 
     let mut sum: u32 = 0;
 
-    for number in NUMBERS {
-        let feul = calc_feul(*number);
+    for number in input {
+        let feul = calc_feul(number as u32);
         sum += feul;
     }
 
-    sum
+    Ok(sum)
+}
+
+fn read<R: Read>(io: R) -> Result<Vec<i64>, Error> {
+    let br = BufReader::new(io);
+    br.lines()
+        .map(|line| line.and_then(|v| v.parse().map_err(|e| Error::new(ErrorKind::InvalidData, e))))
+        .collect()
 }
 
 fn calc_feul(mass: u32) -> u32 {
