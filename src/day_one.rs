@@ -2,7 +2,7 @@ use math::round;
 use std::fs::File;
 use std::io::{BufRead, BufReader, Error, ErrorKind, Read};
 
-pub fn solve_one() -> Result<u32, Error> {
+pub fn solve() -> Result<u32, Error> {
 
     let input = read(File::open("input/1.txt")?)?;
 
