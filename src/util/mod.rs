@@ -13,7 +13,6 @@ pub fn read_comma_delim<R: Read>(io: R) -> Result<Vec<u64>, Error> {
     for lines in br.lines() {
         for value in lines.unwrap().split(',') {
             let value: u64 = value.parse::<u64>().unwrap();
-            // println!("value: {}", value);
             result.push(value);
         }
     }

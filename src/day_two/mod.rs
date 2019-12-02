@@ -2,7 +2,6 @@ use super::util;
 use std::fs::File;
 use std::io::{Error, ErrorKind};
 
-#[allow(dead_code)]
 pub fn solve() -> Result<(), Error> {
     let input = util::read_comma_delim(File::open("input/2.txt")?)?;
 
@@ -26,11 +25,9 @@ fn part_one(mut input: Vec<u64>, noun: u64, verb: u64) -> Result<u64, Error> {
 
 fn part_two(input: Vec<u64>, expected_result: u64) -> Result<u64, Error> {
     for noun in 0..99 {
-        let mut attempt;
         for verb in 0..99 {
-            attempt = part_one(input.clone(), noun, verb)?;
+            let attempt = part_one(input.clone(), noun, verb)?;
             if attempt == expected_result {
-
                 return Ok(100 * noun + verb);
             }
         }
