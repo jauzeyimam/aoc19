@@ -3,55 +3,61 @@ use math::round;
 use std::fs::File;
 use std::io::Error;
 
+pub struct DayOne;
 
-pub fn solve() -> Result<(), Error> {
+impl super::Solution for DayOne {
+    fn solve(&self) -> Result<String, Error> {
+        let input = util::read(File::open("input/1.txt")?)?;
 
-    let input = util::read(File::open("input/1.txt")?)?;
+        let result = format!(
+            "Day 1a: {}\nDay 1b: {}",
+            self.part_one(input.clone()),
+            self.part_two(input.clone())
+        );
 
-    println!("Day 1a: {}", part_one(input.clone()));
-    println!("Day 1b: {}", part_two(input.clone()));
-
-    Ok(())
-
+        Ok(result)
+    }
 }
 
-fn part_one(input: Vec<u32>) -> u32 {
-    let mut sum = 0;
+impl DayOne {
+    fn part_one(&self, input: Vec<u32>) -> u32 {
+        let mut sum = 0;
 
-    for number in input {
-        let feul = calc_fuel(number, false);
-        sum += feul;
+        for number in input {
+            let feul = self.calc_fuel(number, false);
+            sum += feul;
+        }
+
+        sum
     }
 
-    sum
-}
+    fn part_two(&self, input: Vec<u32>) -> u32 {
+        let mut sum = 0;
 
-fn part_two(input: Vec<u32>) -> u32 {
-    let mut sum = 0;
+        for number in input {
+            let feul = self.calc_fuel(number, true);
+            sum += feul;
+        }
 
-    for number in input {
-        let feul = calc_fuel(number, true);
-        sum += feul;
+        sum
     }
 
-    sum
-}
+    fn calc_fuel(&self, mass: u32, fuel_mass: bool) -> u32 {
+        let divide_by_three = mass as f32 / 3.0;
+        let floored = round::floor(divide_by_three as f64, 0) as i32;
+        let subtract_two = floored - 2;
 
-fn calc_fuel(mass: u32, fuel_mass: bool) -> u32 {
-    let divide_by_three = mass as f32 / 3.0;
-    let floored = round::floor(divide_by_three as f64, 0) as i32;
-    let subtract_two = floored - 2;
+        if !fuel_mass {
+            return subtract_two as u32;
+        }
 
-    if !fuel_mass {
-        return subtract_two as u32;
+        if subtract_two <= 0 {
+            return 0;
+        }
+
+        let result_feul = self.calc_fuel(subtract_two as u32, true);
+        let result = subtract_two as u32 + result_feul;
+
+        result
     }
-
-    if subtract_two <= 0 {
-        return 0;
-    }
-
-    let result_feul = calc_fuel(subtract_two as u32, true);
-    let result = subtract_two as u32 + result_feul;
-
-    result
 }
