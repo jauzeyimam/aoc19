@@ -19,3 +19,17 @@ pub fn read_comma_delim<R: Read>(io: R) -> Result<Vec<u64>, Error> {
 
     Ok(result)
 }
+
+pub fn read_comma_delim_str<R: Read>(io: R) -> Result<Vec<Vec<String>>, Error> {
+    let br = BufReader::new(io);
+    let mut result: Vec<Vec<String>> = Vec::new();
+    for lines in br.lines() {
+        let mut line_vec: Vec<String> = Vec::new();
+        for value in lines.unwrap().split(',') {
+            line_vec.push(value.to_string());
+        }
+        result.push(line_vec);
+    }
+
+    Ok(result)
+}
