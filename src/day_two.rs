@@ -45,12 +45,9 @@ impl DayTwo {
     }
 
     fn run_instructions(&self, mut input: Vec<u64>) -> Result<Vec<u64>, Error> {
-        // println!("Input: {:?}", input);
-
         let mut x = 0;
         while x < input.len() {
             let op_code = input.get(x).unwrap();
-            // println!("opcode: {}", op_code);
             match op_code {
                 1 | 2 => {
                     let pos_one = *input.get(x + 1).unwrap();
@@ -82,10 +79,7 @@ impl DayTwo {
                     return Err(Error::new(ErrorKind::InvalidData, "Invalid Data!"));
                 }
             }
-            // println!("Result: {:?} | x: {}", input, x);
         }
-
-        // println!("Final Result: {:?}", input);
 
         Ok(input)
     }

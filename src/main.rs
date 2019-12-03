@@ -5,7 +5,6 @@ mod util;
 use std::io::Error;
 
 trait Solution {
-    // fn new() -> Self;
     fn solve(&self) -> Result<String, Error>;
 }
 
