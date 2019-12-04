@@ -1,3 +1,4 @@
+mod day_four;
 mod day_one;
 mod day_three;
 mod day_two;
@@ -14,6 +15,7 @@ fn main() -> Result<(), Error> {
     solutions.push(Box::new(day_one::DayOne));
     solutions.push(Box::new(day_two::DayTwo));
     solutions.push(Box::new(day_three::DayThree));
+    solutions.push(Box::new(day_four::DayFour));
 
     for solution in solutions {
         let result = solution.solve()?;
