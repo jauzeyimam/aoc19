@@ -7,12 +7,12 @@ pub fn read<R: Read>(io: R) -> Result<Vec<u32>, Error> {
         .collect()
 }
 
-pub fn read_comma_delim<R: Read>(io: R) -> Result<Vec<u64>, Error> {
+pub fn read_comma_delim<R: Read>(io: R) -> Result<Vec<i64>, Error> {
     let br = BufReader::new(io);
-    let mut result: Vec<u64> = Vec::new();
+    let mut result: Vec<i64> = Vec::new();
     for lines in br.lines() {
         for value in lines.unwrap().split(',') {
-            let value: u64 = value.parse::<u64>().unwrap();
+            let value: i64 = value.parse::<i64>().unwrap();
             result.push(value);
         }
     }

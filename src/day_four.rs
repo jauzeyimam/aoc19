@@ -9,11 +9,15 @@ impl super::Solution for DayFour {
 
         let mut a = 0;
         let mut b = 0;
+        let fn_a = |x: i32| -> bool { x >= 2 };
+        let fn_b = |x: i32| -> bool { x == 2 };
+
         for i in start..end {
-            if self.meets_criteria(i.to_string(), false) {
+            if self.meets_criteria(i.to_string(), fn_a) {
                 a += 1;
             }
-            if self.meets_criteria(i.to_string(), true) {
+
+            if self.meets_criteria(i.to_string(), fn_b) {
                 b += 1;
             }
         }
@@ -23,7 +27,10 @@ impl super::Solution for DayFour {
 }
 
 impl DayFour {
-    fn meets_criteria(&self, input: String, no_adj: bool) -> bool {
+    fn meets_criteria<F>(&self, input: String, allowed_adj: F) -> bool
+    where
+        F: Fn(i32) -> bool,
+    {
         // 1) It is a six-digit number.
         if input.len() != 6 {
             return false;
@@ -47,11 +54,7 @@ impl DayFour {
                 }
             }
 
-            if no_adj {
-                if count == 2 {
-                    found = true;
-                }
-            } else if count >= 2 {
+            if allowed_adj(count) {
                 found = true;
             }
         }
@@ -68,44 +71,31 @@ mod tests {
     use super::*;
 
     #[test]
-    fn test_meets_criteria_111111() {
-        let day_four = DayFour;
-        assert_eq!(day_four.meets_criteria(String::from("111111"), false), true);
-    }
-
-    #[test]
-    fn test_meets_criteria_223450() {
+    fn test_meets_criteria() {
         let day_four = DayFour;
         assert_eq!(
-            day_four.meets_criteria(String::from("223450"), false),
-            false
+            day_four.meets_criteria(String::from("111111"), |x: i32| -> bool { x >= 2 }),
+            true
         );
-    }
-
-    #[test]
-    fn test_meets_criteria_123789() {
-        let day_four = DayFour;
         assert_eq!(
-            day_four.meets_criteria(String::from("123789"), false),
+            day_four.meets_criteria(String::from("223450"), |x: i32| -> bool { x >= 2 }),
             false
         );
-    }
-
-    #[test]
-    fn test_meets_criteria_112233() {
-        let day_four = DayFour;
-        assert_eq!(day_four.meets_criteria(String::from("112233"), true), true);
-    }
-
-    #[test]
-    fn test_meets_criteria_123444() {
-        let day_four = DayFour;
-        assert_eq!(day_four.meets_criteria(String::from("123444"), true), false);
-    }
-
-    #[test]
-    fn test_meets_criteria_111122() {
-        let day_four = DayFour;
-        assert_eq!(day_four.meets_criteria(String::from("111122"), true), true);
+        assert_eq!(
+            day_four.meets_criteria(String::from("123789"), |x: i32| -> bool { x >= 2 }),
+            false
+        );
+        assert_eq!(
+            day_four.meets_criteria(String::from("112233"), |x: i32| -> bool { x == 2 }),
+            true
+        );
+        assert_eq!(
+            day_four.meets_criteria(String::from("123444"), |x: i32| -> bool { x == 2 }),
+            false
+        );
+        assert_eq!(
+            day_four.meets_criteria(String::from("111122"), |x: i32| -> bool { x == 2 }),
+            true
+        );
     }
 }

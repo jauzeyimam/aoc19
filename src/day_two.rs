@@ -1,6 +1,7 @@
 use super::util;
 use std::fs::File;
 use std::io::{Error, ErrorKind};
+use text_io::*;
 
 pub struct DayTwo;
 
@@ -19,16 +20,19 @@ impl super::Solution for DayTwo {
 }
 
 impl DayTwo {
-    fn part_one(&self, mut input: Vec<u64>, noun: u64, verb: u64) -> Result<u64, Error> {
+    fn part_one(&self, mut input: Vec<i64>, noun: i64, verb: i64) -> Result<i64, Error> {
         input[1] = noun;
         input[2] = verb;
 
-        let result = self.run_instructions(input)?;
+        let f = || -> i64 { read!("{}\n") };
+        let g = |x: i64| println!("{}", x);
+
+        let result = self.run_instructions(input, f, g)?;
 
         Ok(result[0])
     }
 
-    fn part_two(&self, input: Vec<u64>, expected_result: u64) -> Result<u64, Error> {
+    fn part_two(&self, input: Vec<i64>, expected_result: i64) -> Result<i64, Error> {
         for noun in 0..99 {
             for verb in 0..99 {
                 let attempt = self.part_one(input.clone(), noun, verb)?;
@@ -44,16 +48,41 @@ impl DayTwo {
         ));
     }
 
-    fn run_instructions(&self, mut input: Vec<u64>) -> Result<Vec<u64>, Error> {
+    pub fn run_instructions<F, G>(
+        &self,
+        mut input: Vec<i64>,
+        mut input_cmd: F,
+        mut output_cmd: G,
+    ) -> Result<Vec<i64>, Error>
+    where
+        F: FnMut() -> i64,
+        G: FnMut(i64),
+    {
         let mut x = 0;
         while x < input.len() {
-            let op_code = input.get(x).unwrap();
+            let op = input.get(x).unwrap();
+
+            let (op_code, mode_one, mode_two, mode_three) = parse_opcode(*op);
+
             match op_code {
                 1 | 2 => {
-                    let pos_one = *input.get(x + 1).unwrap();
-                    let pos_two = *input.get(x + 2).unwrap();
-                    let value_one = *input.get(pos_one as usize).unwrap();
-                    let value_two = *input.get(pos_two as usize).unwrap();
+                    let value_one;
+                    let value_two;
+
+                    let pos_value = *input.get(x + 1).unwrap();
+                    if mode_one {
+                        value_one = pos_value;
+                    } else {
+                        value_one = *input.get(pos_value as usize).unwrap();
+                    }
+
+                    let pos_value = *input.get(x + 2).unwrap();
+                    if mode_two {
+                        value_two = pos_value
+                    } else {
+                        value_two = *input.get(pos_value as usize).unwrap();
+                    }
+
                     let pos_move = *input.get(x + 3).unwrap();
 
                     let result;
@@ -65,11 +94,105 @@ impl DayTwo {
                             result = value_one * value_two;
                         }
                         _ => {
-                            break;
+                            continue;
                         }
                     }
 
                     input[pos_move as usize] = result;
+                    x += 4;
+                }
+                3 => {
+                    let i: i64 = input_cmd();
+                    let pos_one = *input.get(x + 1).unwrap();
+                    input[pos_one as usize] = i as i64;
+                    x += 2;
+                }
+                4 => {
+                    let value_one;
+
+                    let pos_value = *input.get(x + 1).unwrap();
+                    if mode_one {
+                        value_one = pos_value;
+                    } else {
+                        value_one = *input.get(pos_value as usize).unwrap();
+                    }
+
+                    output_cmd(value_one);
+                    x += 2;
+                }
+                5 | 6 => {
+                    let value_one;
+                    let value_two;
+
+                    let pos_value = *input.get(x + 1).unwrap();
+                    if mode_one {
+                        value_one = pos_value;
+                    } else {
+                        value_one = *input.get(pos_value as usize).unwrap();
+                    }
+
+                    let pos_value = *input.get(x + 2).unwrap();
+                    if mode_two {
+                        value_two = pos_value
+                    } else {
+                        value_two = *input.get(pos_value as usize).unwrap();
+                    }
+
+                    let set = match op_code {
+                        5 => value_one != 0,
+                        6 => value_one == 0,
+                        _ => {
+                            return Err(Error::new(ErrorKind::InvalidData, "Invalid Data!"));
+                        }
+                    };
+
+                    if set {
+                        x = value_two as usize;
+                    } else {
+                        x += 3;
+                    }
+                }
+                7 | 8 => {
+                    let value_one;
+                    let value_two;
+
+                    let pos_value = *input.get(x + 1).unwrap();
+                    if mode_one {
+                        value_one = pos_value;
+                    } else {
+                        value_one = *input.get(pos_value as usize).unwrap();
+                    }
+
+                    let pos_value = *input.get(x + 2).unwrap();
+                    if mode_two {
+                        value_two = pos_value
+                    } else {
+                        value_two = *input.get(pos_value as usize).unwrap();
+                    }
+
+                    let pos_move = *input.get(x + 3).unwrap();
+
+                    let set = match op_code {
+                        7 => {
+                            if value_one < value_two {
+                                1
+                            } else {
+                                0
+                            }
+                        }
+                        8 => {
+                            if value_one == value_two {
+                                1
+                            } else {
+                                0
+                            }
+                        }
+                        _ => {
+                            return Err(Error::new(ErrorKind::InvalidData, "Invalid Data!"));
+                        }
+                    };
+
+                    input[pos_move as usize] = set;
                     x += 4;
                 }
                 99 => {
@@ -82,5 +205,27 @@ impl DayTwo {
         }
 
         Ok(input)
+    }
+}
+
+fn parse_opcode(op: i64) -> (i64, bool, bool, bool) {
+    let op_code = op % 100;
+    let mode_one = ((op / 100) % 10) == 1;
+    let mode_two = ((op / 1000) % 10) == 1;
+    let mode_three = ((op / 10000) % 10) == 1;
+
+    return (op_code, mode_one, mode_two, mode_three);
+}
+
+mod test {
+    use super::*;
+
+    #[test]
+    fn test_mod_parsing() {
+        let ops = parse_opcode(10199);
+        assert_eq!(ops, (99, true, false, true));
+
+        let ops = parse_opcode(102);
+        assert_eq!(ops, (2, true, false, false));
     }
 }
