@@ -1,15 +1,10 @@
 use super::day_two;
 use super::util;
-use permutator::Permutation;
-use std::borrow::Borrow;
 use std::cell::RefCell;
 use std::collections::VecDeque;
 use std::fs::File;
-use std::io::{Error, ErrorKind};
-use std::rc::Rc;
+use std::io::Error;
 use std::sync::mpsc::channel;
-// use std::sync::mpsc::sync_channel;
-use std::sync::{Arc, Mutex};
 use std::thread;
 
 pub struct DaySeven;
@@ -197,18 +192,18 @@ impl DaySeven {
             tx5.send(p[4]).unwrap();
 
             // wait for all to finish
-            amp1.join();
-            amp2.join();
-            amp3.join();
-            amp4.join();
-            amp5.join();
+            let _ = amp1.join();
+            let _ = amp2.join();
+            let _ = amp3.join();
+            let _ = amp4.join();
+            let _ = amp5.join();
         });
 
         drop(result_tx);
 
-        let result_vec: Vec<i64> = result_rx.iter().collect();
+        let result = result_rx.iter().max().unwrap().to_string();
 
-        result_vec.iter().max().unwrap().to_string()
+        result
     }
 }
 

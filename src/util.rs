@@ -20,6 +20,24 @@ pub fn read_comma_delim<R: Read>(io: R) -> Result<Vec<i64>, Error> {
     Ok(result)
 }
 
+pub fn read_list_of_ints<R: Read>(io: R) -> Result<Vec<u32>, Error> {
+    let br = BufReader::new(io);
+    let mut result: Vec<u32> = Vec::new();
+
+    for line in br.lines() {
+        match line {
+            Err(why) => panic!("{:?}", why),
+            Ok(string) => {
+                let mut string_vec: Vec<u32> =
+                    string.chars().map(|d| d.to_digit(10).unwrap()).collect();
+                result.append(&mut string_vec);
+            }
+        }
+    }
+
+    Ok(result)
+}
+
 pub fn read_comma_delim_str<R: Read>(io: R) -> Result<Vec<Vec<String>>, Error> {
     let br = BufReader::new(io);
     let mut result: Vec<Vec<String>> = Vec::new();

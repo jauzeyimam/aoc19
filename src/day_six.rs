@@ -76,7 +76,7 @@ impl DaySix {
     }
 
     fn min_jumps(&self, map: HashMap<String, String>, from: String, to: String) -> usize {
-        println!("Calculating min jumps");
+        // println!("Calculating min jumps");
 
         let parents_from = self.list_of_parents(&map, from);
         let parents_to = self.list_of_parents(&map, to);
