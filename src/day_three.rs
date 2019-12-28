@@ -37,9 +37,9 @@ impl super::Solution for DayThree {
             .unwrap();
         let p2 = intersection
             .clone()
-            .map(|p| map_a.get(*p).unwrap() + map_b.get(*p).unwrap())
+            .map(|p| map_a.get(*p).unwrap_or(&0) + map_b.get(*p).unwrap_or(&0))
             .min()
-            .unwrap();
+            .unwrap_or(0);
 
         Ok(format!("Day 3a: {}\nDay 3b: {}", p1, p2))
     }

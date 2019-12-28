@@ -5,6 +5,8 @@ use std::collections::VecDeque;
 use std::fs::File;
 use std::io::Error;
 use std::sync::mpsc::channel;
+use std::sync::Arc;
+use std::sync::Barrier;
 use std::thread;
 
 pub struct DaySeven;
@@ -154,34 +156,46 @@ impl DaySeven {
                 }
             };
 
+            let barrier = Arc::new(Barrier::new(5));
+
             let input = input_orig.clone();
+            let barrier_clone = barrier.clone();
             let amp1 = thread::spawn(move || {
                 let day_two = day_two::DayTwo;
                 day_two.run_instructions(input, f1, g1);
+                barrier_clone.wait();
             });
 
+            let barrier_clone = barrier.clone();
             let input = input_orig.clone();
             let amp2 = thread::spawn(move || {
                 let day_two = day_two::DayTwo;
                 day_two.run_instructions(input, f2, g2);
+                barrier_clone.wait();
             });
 
+            let barrier_clone = barrier.clone();
             let input = input_orig.clone();
             let amp3 = thread::spawn(move || {
                 let day_two = day_two::DayTwo;
                 day_two.run_instructions(input, f3, g3);
+                barrier_clone.wait();
             });
 
+            let barrier_clone = barrier.clone();
             let input = input_orig.clone();
             let amp4 = thread::spawn(move || {
                 let day_two = day_two::DayTwo;
                 day_two.run_instructions(input, f4, g4);
+                barrier_clone.wait();
             });
 
+            let barrier_clone = barrier.clone();
             let input = input_orig.clone();
             let amp5 = thread::spawn(move || {
                 let day_two = day_two::DayTwo;
                 day_two.run_instructions(input, f5, g5);
+                barrier_clone.wait();
             });
 
             tx1.send(p[0]).unwrap();
@@ -191,17 +205,16 @@ impl DaySeven {
             tx4.send(p[3]).unwrap();
             tx5.send(p[4]).unwrap();
 
-            // wait for all to finish
-            let _ = amp1.join();
-            let _ = amp2.join();
-            let _ = amp3.join();
-            let _ = amp4.join();
-            let _ = amp5.join();
+            drop(tx1);
+            drop(tx2);
+            drop(tx3);
+            drop(tx4);
+            drop(tx5);
         });
 
         drop(result_tx);
 
-        let result = result_rx.iter().max().unwrap().to_string();
+        let result = result_rx.iter().max().unwrap_or(0).to_string();
 
         result
     }
